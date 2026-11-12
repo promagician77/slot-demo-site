@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Nocturne Reef · build notes</title><meta name="description" content="How the Nocturne Reef slot demo is built and what was measured.">
+<style>
+@font-face{font-family:Unbounded;font-weight:800;src:url(fonts/unbounded-800.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Manrope;font-weight:500;src:url(fonts/manrope-500.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Manrope;font-weight:700;src:url(fonts/manrope-700.woff2) format("woff2");font-display:swap}
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0c4157 0,#05263a 420px,#020b14 1100px) #020b14;color:#e9fbff;font:500 16px/1.6 Manrope,system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:40px 20px 80px}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px;margin-bottom:28px}
+h1{margin:0;font:800 clamp(28px,6vw,46px)/1.05 Unbounded,sans-serif;letter-spacing:-.01em}
+h1 span{display:block;font-size:.42em;color:#9cc3cc;letter-spacing:.02em;margin-bottom:8px}
+h2{margin:44px 0 12px;font:800 21px/1.25 Unbounded,sans-serif}
+p{max-width:68ch;color:#cfe9ee}
+a{color:#5ef2e0;font-weight:700}
+.play{display:inline-flex;align-items:center;height:48px;padding:0 24px;border-radius:24px;background:linear-gradient(180deg,#d8fffa,#45e6d2 45%,#0b8c92);color:#03262c;text-decoration:none;font-weight:800}
+.play:focus-visible{outline:3px solid #ffd27a;outline-offset:3px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;font-size:12px;letter-spacing:.04em;color:#9cc3cc;padding:8px 10px;border-bottom:1px solid rgba(94,242,224,.2)}
+td{padding:11px 10px;border-bottom:1px solid rgba(94,242,224,.08);vertical-align:top}
+td:first-child{font-weight:700;white-space:nowrap}
+td.v{font-weight:700;color:#ffd27a;white-space:nowrap}
+.wrap{overflow-x:auto;border:1px solid rgba(94,242,224,.14);border-radius:16px;background:rgba(3,16,26,.6)}
+.arch{width:100%;height:auto;margin:6px 0}
+ul{padding-left:20px;color:#cfe9ee}li{margin:6px 0}
+code{font-size:.92em;background:rgba(94,242,224,.1);padding:1px 6px;border-radius:6px}
+footer{margin-top:48px;color:#9cc3cc;font-size:13px}
+</style></head><body><main>
+<header><h1><span>Build notes</span>Nocturne Reef</h1><a class="play" href="./">Play the demo</a></header>
+<p>A playable HTML5 slot built for this brief with PixiJS 8.23.0 and TypeScript. The game server decides every result; the renderer only animates it. Everything below was measured on this build; what was not measured is listed at the end.</p>
+<h2>What each milestone looks like here</h2>
+<div class="wrap" tabindex="0" role="region" aria-label="Milestones"><table><thead><tr><th scope="col">Milestone</th><th scope="col">In the demo</th><th scope="col">Where to see it</th></tr></thead><tbody>
+<tr><td>1 · Playable prototype</td><td>Five reels, three rows, 20 paylines; wild and scatter wins decided on the server; spin, bounce and stop animation; win lines and win counter; portrait, landscape and desktop layouts.</td><td>Press Spin.</td></tr><tr><td>2 · Polished demo</td><td>Slow-down when two pearls land; big, mega and epic win screens; free spins with sticky wilds and retriggers; 12 sound cues behind named hooks; autoplay, turbo, quick stop; paytable and rules built from the server config.</td><td>Menu → Demo tools → &quot;Next spin: free spins&quot;.</td></tr><tr><td>3 · Production foundation</td><td>Server decides every outcome behind a documented API (Web Worker or HTTP); crypto RNG; exact and simulated RTP; round history with replay; resume after reload; recovery from a lost reply; UK rule profile; English/Spanish and any currency; keyboard and screen-reader support; 30 fps idle cap.</td><td>Menu → History → Replay. Reload during free spins. Add ?⁠profile=uk to the link.</td></tr>
+</tbody></table></div>
+<h2>How it is built</h2>
+<svg viewBox="0 0 900 250" role="img" aria-labelledby="arch-t arch-d" class="arch">
+<title id="arch-t">Architecture</title><desc id="arch-d">The renderer sends requests through a transport to the game server, which owns the random numbers, reel strips, evaluation, session state and history.</desc>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5ef2e0"/></marker></defs>
+<g font-family="Manrope, sans-serif" font-size="14" fill="#e9fbff">
+<rect x="10" y="20" width="270" height="200" rx="18" fill="#06283d" stroke="#5ef2e0" stroke-opacity=".45"/>
+<text x="30" y="52" font-family="Unbounded, sans-serif" font-weight="800" font-size="17">Renderer</text>
+<text x="30" y="82">PixiJS v8 scene, reels, effects</text><text x="30" y="106">DOM controls and dialogs</text><text x="30" y="130">GSAP animation sequences</text><text x="30" y="154">Web Audio cues (hooks)</text>
+<text x="30" y="196" fill="#9cc3cc" font-size="12.5">Animates results. Never decides one.</text>
+<rect x="330" y="70" width="220" height="100" rx="18" fill="#0b2233" stroke="#9b7bff" stroke-opacity=".55"/>
+<text x="350" y="102" font-family="Unbounded, sans-serif" font-weight="800" font-size="17">Transport</text>
+<text x="350" y="130">Web Worker (demo)</text><text x="350" y="152">HTTP /rpc (Node server)</text>
+<rect x="600" y="20" width="290" height="200" rx="18" fill="#1a0f3d" stroke="#ff8fd0" stroke-opacity=".5"/>
+<text x="620" y="52" font-family="Unbounded, sans-serif" font-weight="800" font-size="17">Game server</text>
+<text x="620" y="82">Crypto RNG, reel strips</text><text x="620" y="106">Line and scatter evaluation</text><text x="620" y="130">Free spins, sticky wilds, cap</text><text x="620" y="154">Session store, history, recovery</text>
+<text x="620" y="196" fill="#d9c9ff" font-size="12.5">Same code in worker and Node.</text>
+<path d="M282 108 H326" stroke="#5ef2e0" stroke-width="2.5" marker-end="url(#ah)"/><path d="M552 108 H596" stroke="#5ef2e0" stroke-width="2.5" marker-end="url(#ah)"/>
+<path d="M596 136 H554" stroke="#ff8fd0" stroke-width="2.5" marker-end="url(#ah)"/><path d="M328 136 H284" stroke="#ff8fd0" stroke-width="2.5" marker-end="url(#ah)"/>
+<text x="290" y="96" font-size="12" fill="#9cc3cc">spin</text><text x="556" y="96" font-size="12" fill="#9cc3cc">bet</text><text x="556" y="156" font-size="12" fill="#9cc3cc">outcome</text><text x="288" y="156" font-size="12" fill="#9cc3cc">grid, wins</text>
+</g></svg>
+<p>Outcome logic, reel strips and the RNG live only in the server code. A build check fails if any of it reaches a renderer chunk. The wire contract is in <code>API.md</code>; the same contract tests pass against the worker and the Node HTTP server.</p>
+<h2>Measured</h2>
+<div class="wrap" tabindex="0" role="region" aria-label="Measurements"><table><thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">How</th></tr></thead><tbody>
+<tr><td>Return to player</td><td class="v">96.38% (±0.08%)</td><td>Base game 62.58%, exact over all 858,442,142 reel-stop combinations; free spins 33.80% from 1,000,000 simulated features.</td></tr><tr><td>Full-game check</td><td class="v">96.00% (±0.42%)</td><td>10,000,000 simulated rounds through the same evaluator; difference from the exact figure z = -1.73.</td></tr><tr><td>Real session code path</td><td class="v">96.77% (±3.06%)</td><td>200,000 rounds through the actual session state machine, money in cents.</td></tr><tr><td>Hit rate · volatility</td><td class="v">42.0% · SD 6.79× bet</td><td>Free spins 1 in 124; a win of 10× bet or more 1 in 102; largest win seen 1,380× (cap 5,000× never reached).</td></tr><tr><td>Random numbers</td><td class="v">p = 0.132–0.996</td><td>Chi-square on 30,600,000 crypto draws across the five reels; largest lag-1 correlation 0.0007.</td></tr><tr><td>Engine tests</td><td class="v">38/38 pass</td><td>Evaluator cases, exact-RTP method proven against brute force, strip rules, balance ledger over 3,000 spins, sticky wilds, resume, typed errors, and one contract suite run against both the worker and the HTTP server.</td></tr><tr><td>No outcome logic in renderer</td><td class="v">Pass</td><td>Build check: no engine marker or reel strips in any renderer chunk (216.3 KB gzip); they appear only in the stand-in server chunk (4.5 KB).</td></tr><tr><td>Balance reconciliation</td><td class="v">100 rounds, 0 mismatches</td><td>The browser played the build; after every round the shown balance matched the server's. 4 free-spins features (32 free spins) included. Ledger: start − bets + wins = end.</td></tr><tr><td>Resume after reload</td><td class="v">Pass</td><td>Page reloaded during free spins. The resume panel offered spin 3 of 8, matching the server; all 2 sticky wilds were back; no spin was skipped; the same round finished and the balance matched.</td></tr><tr><td>Lost reply</td><td class="v">Pass</td><td>Server settled the spin, the reply was dropped; after reconnecting the game showed that exact round and the server balance.</td></tr><tr><td>Replay (game recall)</td><td class="v">Pass</td><td>Replays a stored round with a REPLAY banner; balance unchanged.</td></tr><tr><td>UK rule profile</td><td class="v">2,516 ms min cycle</td><td>Spin pressed 158 times in 20 s: shortest gap between spins 2,516 ms (rule 2,500). Autoplay, turbo and quick stop absent. A 0.50 return on a 1.00 stake was shown as &quot;Returned … of your stake&quot; with no sound or particles.</td></tr><tr><td>Layouts</td><td class="v">5 viewports, 0 issues</td><td>Phone portrait and landscape, small phone, tablet, desktop: every control on screen, none overlapping each other or the reels, touch targets ≥ 44 px.</td></tr><tr><td>Accessibility</td><td class="v">0 issues in 14 scans</td><td>axe-core 4.14.0 on the game, every menu tab, history, autoplay sheet and free-spins panel; Space spins; Lighthouse accessibility 100/100.</td></tr><tr><td>Sound</td><td class="v">12 cues, peak 0.365</td><td>Every cue rendered offline: none silent, none clipping (peak &lt; 1.0).</td></tr><tr><td>Memory</td><td class="v">6.22 → 9.33 MB</td><td>JS heap after garbage collection, sampled every 20 rounds across 160 rounds: 7.07 → 8.7 → 8.61 → 8.72 → 9.3 → 9.44 → 9.41 → 9.3 MB. Scene objects 157 → 157; looping tweens left running: 0.</td></tr><tr><td>Scene update cost</td><td class="v">0.10 ms median</td><td>CPU time of the per-frame game update over 2,214 frames of play (p95 0.50 ms). GPU time not included.</td></tr><tr><td>Load</td><td class="v">294 KB</td><td>Transferred on first load (Brotli). Lighthouse mobile/desktop: performance 63/64, best practices 100/100, CLS 0.024/0.007, LCP 1.0 s / 0.5 s. The test machine has no GPU, so WebGL ran in software; treat the performance score as a floor.</td></tr>
+</tbody></table></div>
+<h2>Not measured</h2>
+<ul><li>Frame rate on real phones and GPUs. The test machine renders WebGL in software, so frame rates there say nothing about devices.</li><li>Real iOS Safari and Android Chrome hardware: audio unlock, notches and safe areas were checked only in emulated viewports.</li><li>Lab certification (GLI, BMM, iTech). The chi-square and RTP runs are engineering checks, not a certificate.</li><li>Your art direction. The symbols are my own placeholder illustrations, drawn in code.</li><li>Spine animation. The demo has none; your Spine files would plug into the same symbol and win hooks.</li><li>A real wallet or aggregator. The Node server keeps sessions in memory.</li><li>How players respond to the math (feel, session length, feature pacing).</li></ul>
+<h2>Try it</h2>
+<ul>
+<li><a href="./?profile=uk&amp;currency=GBP">UK rule profile in GBP</a>: no autoplay, turbo or quick stop; 2.5 s between spins.</li>
+<li><a href="./?lang=es&amp;currency=EUR">Spanish, euros</a></li>
+<li><a href="./?fps=1">Performance meter</a></li>
+<li>Menu → Demo tools: force free spins, a big win, two pearls, a retrigger, or drop the next server reply.</li>
+</ul>
+<footer>Math NR-1.0 · PixiJS 8.23.0 · GSAP 3.15.1 · TypeScript 7.0.2 · Vite 8.3.8. Symbols, sounds and fonts: original art drawn in code, synthesized audio, Unbounded and Manrope (SIL OFL).</footer>
+</main></body></html>

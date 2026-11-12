@@ -1,0 +1,9 @@
+{
+  "name": "nocturne-reef-demo-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prebuilt static site for the Nocturne Reef slot demo. Deploy with: npx vercel deploy --prod",
+  "scripts": {
+    "deploy": "vercel deploy --prod"
+  }
+}
